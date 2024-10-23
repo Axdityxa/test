@@ -1,0 +1,55 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  tests     Test[]
+}
+
+model Test {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  sections    Section[]
+  startTime   DateTime  @default(now())
+  endTime     DateTime?
+}
+
+model Section {
+  id          Int       @id @default(autoincrement())
+  testId      Int
+  test        Test      @relation(fields: [testId], references: [id])
+  questions   Question[]
+}
+
+model Question {
+  id          Int       @id @default(autoincrement())
+  sectionId   Int
+  section     Section   @relation(fields: [sectionId], references: [id])
+  questionText String
+  questionType QuestionType
+  answers     Answer[]
+}
+
+model Answer {
+  id          Int       @id @default(autoincrement())
+  questionId  Int
+  question    Question  @relation(fields: [questionId], references: [id])
+  answerText  String
+  isCorrect   Boolean
+}
+
+enum QuestionType {
+  MCQ
+  FILL_IN_THE_BLANKS
+  MATCH_THE_FOLLOWING
+  TRUE_FALSE
+}
